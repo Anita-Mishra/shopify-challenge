@@ -22,16 +22,13 @@ exports.createProduct = async (req, res) => {
 
 
 exports.getProductDetailsById = async (req, res) => {
-    const productList = await Product.find({
-      userId: req.params.id,
-      isDelete:  false
-  });
-    if (!productList) {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
       res
-        .send({ message: "No products found in the inventory", success: false })
+        .send({ message: "No product found in the inventory with given id", success: false })
         .status(500);
     }
-    res.send({ products: productList, success: true }).status(200);
+    res.send({ products: product, success: true }).status(200);
   };
 
   
