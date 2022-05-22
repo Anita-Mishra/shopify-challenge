@@ -23,6 +23,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getProductDetailsById = async (req, res) => {
     const product = await Product.findById(req.params.id);
+  console.log("product"+req.params.id);
     if (!product) {
       res
         .send({ message: "No product found in the inventory with given id", success: false })
@@ -68,13 +69,29 @@ exports.updateProductDetailsById = async (req, res) => {
   res.send({ products: productList, success: true }).status(200);
 };
 
+exports.getDeletedProduct = async (req, res) => {
+  const softDeleteProduct = await Product.find({
+      isDelete:  true
+    });
+  if (!softDeleteProduct) {
+    res
+      .send({
+        message:
+          "No product is deleted",
+        success: false,
+      })
+      .status(500);
+  }
+  res.send({ productsList: softDeleteProduct, success: true }).status(200);
+};
+
 
 exports.deleteProductById = async (req, res) => {
   const softDeleteProduct = await Product.findByIdAndUpdate(
     req.body.id,
     {
-        isDelete:true,
-        addDeleteComment:req.body.addDeleteComment
+        isDelete:req.body.isDelete,
+        addDeleteComment:req.body.addDeleteComment || ""
     },
     { new: true }
   );
@@ -87,7 +104,15 @@ exports.deleteProductById = async (req, res) => {
       })
       .status(500);
   }
-  res.send({ products: "deleted", success: true }).status(200);
+
+  let delStatus;
+  if(req.body.isDelete){
+    delStatus="deleted";
+  }else{
+    delStatus="undeleted";
+  }
+  
+  res.send({ products: delStatus, success: true }).status(200);
 };
 
 
